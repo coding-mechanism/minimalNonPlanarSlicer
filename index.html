@@ -1,0 +1,670 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Non-Planar Slicer UI MVP</title>
+  <style>
+    :root {
+      --bg: black;
+      --panel: rgb(140,140,140);
+      --panel-2: rgb(170,170,170);
+      --line: black;
+      --text: black;
+      --muted: black;
+      --hover: white;
+      --accent: black;
+      --shadow: rgba(0,0,0,.22);
+      --header-h: 48px;
+      --toolbar-h: 40px;
+      --sidebar-w: 290px;
+      --settings-w: min-content;
+      --editor-w: 360px;
+      --editor-h: 280px;
+      --dev-w: 420px;
+      --dev-h: 220px;
+      --preview-w: 320px;
+    }
+
+    * { box-sizing: border-box; }
+    html, body {
+      width: 100%; height: 100%; margin: 0; overflow: hidden;
+      background: var(--bg); color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    }
+    button, input, select { font: inherit; }
+
+    div.checkbox{
+      margin:1vh;
+      width: fit-content;
+      height: inherit;
+    }
+    input.checkbox{
+      background-color: var(--panel);
+      height: 3vh;
+      color: black;
+    }
+
+    div.Zmin input{
+      background-color: var(--panel);
+      height: 3vh;
+      color: black;
+    }
+    div.Zmin{
+      margin:1vh;
+      width: fit-content;
+      height: inherit;
+    }
+
+    .selected{
+      background-color: var(--hover);
+    }
+
+    #app { position: relative; width: 100vw; height: 100vh; overflow: scroll; background: var(--bg); }
+    #viewport {
+      position: absolute; inset: 0; width: 100%; height: 100%; display: block;
+      background:
+        linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px),
+        var(--bg);
+      background-size: 34px 34px, 34px 34px, 100% 100%;
+    }
+
+    .floating-label {
+      position: absolute; top: -8px; left: 10px; padding: 0 6px; font-size: 13px;
+      color: var(--muted); background: var(--panel); line-height: 1;
+      z-index: 5; border: 1px solid var(--line); border-radius: 5px;
+    }
+
+    .pipebar { display: flex; align-items: stretch; height: 100%; }
+    .menu-btn, .pipebtn, .tab-btn, .dev-tab, .dev-icon, .inspector-chip {
+      border: none; border-right: 1px solid var(--line); background: transparent; color: var(--text); cursor: pointer;
+      padding-inline: 2vh; height: 100%;
+      transition: background-color .18s ease, color .18s ease, opacity .18s ease, border-color .18s ease, box-shadow .18s ease, transform .18s ease;
+    }
+    .menu-btn:hover, .menu-btn.open, .pipebtn:hover, .pipebtn.active, .tab-btn:hover, .tab-btn.active,
+    .dev-tab:hover, .dev-tab.active, .tree-main:hover, .tree-main.active, .region-row:hover, .region-row.active,
+    .toggle-row:hover, .toggle-row.active, .context-item:hover, .inspector-chip:hover, .inspector-chip.active,
+    .mass-btn:hover, .mass-btn.active, .mass-apply-btn:hover, .dev-icon:hover, .preview-grip:hover,
+    .side-grip:hover, .sidebar-restore:hover {
+      background: var(--hover);
+    }
+    .menu-btn:active, .pipebtn:active, .tab-btn:active, .dev-tab:active, .dev-icon:active,
+    .inspector-chip:active, .mass-btn:active, .mass-apply-btn:active, .preview-grip:active,
+    .sidebar-restore:active, .context-item:active {
+      opacity: .72;
+      transform: scale(0.985);
+    }
+
+    .topbar {
+      position: fixed; top: 0; left: 0; right: 0; height: var(--header-h);
+      display: flex; grid-template-columns: 1fr auto 180px; background: var(--panel);
+      border-bottom: 1px solid var(--line); box-shadow: 0 4px 14px var(--shadow); z-index: 60;
+    }
+    .menus-wrap, .actions-wrap { width:100%; display: flex; align-items: center; min-width: 0; }
+    .menus-wrap { justify-content: flex-start; }
+    .actions-wrap { justify-content: flex-end; }
+    .status-text { color: var(--muted); font-size: 12px; margin-right: 1vh; }
+
+    .dropdown {
+      position: fixed; top: calc(var(--header-h) - 1px); min-width: 190px; background: var(--panel);
+      border: 1px solid var(--line); box-shadow: 0 10px 22px var(--shadow); display: none; z-index: 70;
+    }
+    .dropdown.open { display: block; }
+    .dropdown-item { padding: 10px 12px; cursor: pointer; }
+    .dropdown-item:hover { background: var(--hover); }
+
+    .viewport-toolbar {
+      position: absolute; top: calc(var(--header-h) + 8px); left: 50%; transform: translateX(-50%); z-index: 50;
+    }
+    .mui-bar {
+      position: relative; min-height: 32px; background: var(--panel-2); box-shadow: 0 6px 16px var(--shadow); height: 5vh;
+      border: 1px solid var(--line);
+    }
+    .focus-label { color: var(--muted); font-size: 12px; padding: 0 10px; display: flex; align-items: center; }
+
+    .sidebar-shell {
+      position: absolute; top: calc(var(--header-h) + var(--toolbar-h) + 18px); left: 10px; bottom: 1vh;
+      width: var(--sidebar-w); z-index: 40; transition: transform .16s ease;
+      min-width: min-content;
+    }
+    .sidebar-resize-shell {
+      position: relative;
+      height: 100%;
+      overflow: hidden;
+    }
+    .sidebar-shell.collapsed { transform: translateX(calc(-100% - 12px)); }
+    .sidebar {
+      position: relative; width: 100%; height: 100%; display: flex; flex-direction: column;
+      background: var(--panel); border-block: 1px solid var(--line); border-left: 1px solid var(--line);box-shadow: 0 10px 22px var(--shadow); overflow: hidden;
+    }
+    .sidebar-head {
+      display: flex; flex-direction: column; padding: 10px; background: var(--panel-2); border-bottom: 1px solid var(--line); flex: 0 0 auto;
+    }
+    .sidebar-head-top { display: flex; align-items: center; justify-content: space-between; }
+    .sidebar-title { font-size: 13px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; }
+    .sidebar-body { flex: 1 1 auto; min-height: 0; overflow: auto; padding: 10px; display: flex; flex-direction: column; gap: 10px; }
+    .mui-panel { position: relative; border: 1px solid var(--line); background: var(--panel-2); padding-top: 12px; }
+    .mui-panel-body { padding: 10px; }
+
+    .mass-row { display: flex; flex-direction: column; background: var(--panel); margin-bottom: 1vh}
+    .mass-row-head {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: stretch;
+      border: 1px solid var(--line);
+
+    }
+    .mass-apply-btn {
+      background: transparent;
+      border: 0;
+      border-left: 1px solid var(--line);
+      color: var(--text);
+      padding: 0 12px;
+      cursor: pointer;
+      transition: background-color .18s ease, color .18s ease, opacity .18s ease, border-color .18s ease, transform .18s ease;
+    }
+    .mass-apply-btn:hover {
+      background: var(--hover);
+    }
+    .mass-btn { background: transparent; border: 0; color: var(--text); text-align: left; padding: 9px 10px; cursor: pointer; transition: background-color .18s ease, color .18s ease, opacity .18s ease, transform .18s ease; }
+    .mass-input-wrap { display: none; padding: 8px; border-inline: 1px solid var(--line); border-bottom: 1px solid var(--line);
+}
+    .mass-row.open .mass-input-wrap { display: block; }
+
+    .tree-list { display: flex; flex-direction: column; gap: 6px; }
+    .tree-item { border: 1px solid var(--line); background: var(--panel); }
+    .tree-main {
+      display: flex; align-items: center; justify-content: space-between; padding: 9px 10px; cursor: pointer;
+    }
+    .tree-name { color: var(--text); }
+    .tree-meta { color: var(--muted); font-size: 11px; }
+    .regions-list {
+      display: none;
+      flex-direction: column;
+      gap: 4px;
+      border-top: 1px solid var(--line);
+      padding: 6px 6px 6px 12px;
+      background: rgba(255,255,255,0.08);
+    }
+    .tree-item.open .regions-list { display: flex; }
+    .region-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 7px 9px 7px 16px;
+      cursor: pointer;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.12);
+      border-radius: 6px;
+      margin-left: 10px;
+      transform: scale(0.96);
+      transform-origin: left center;
+    }
+
+    .profile-lines {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      margin-top: 2px;
+    }
+    .profile-line {
+      width: 100%;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+      font-size: 11px;
+      color: var(--muted);
+      line-height: 1.35;
+    }
+    .profile-line strong {
+      color: var(--text);
+      font-weight: 600;
+    }
+    .profile-chip {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 6px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255,255,255,0.18);
+      color: var(--text);
+      font-size: 10px;
+      white-space: nowrap;
+    }
+    .profile-chip.warning {
+      background: rgba(255,255,255,0.3);
+      font-weight: 700;
+    }
+    .profile-chip.locked {
+      background: rgba(255,255,255,0.26);
+      font-weight: 700;
+    }
+    .tree-main.profile-card,
+    .region-row.profile-card {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 6px;
+    }
+    .region-row.profile-card {
+      gap: 4px;
+    }
+    .region-row .tree-name {
+      font-size: 11px;
+    }
+    .region-row .tree-meta,
+    .region-row .profile-line {
+      font-size: 10px;
+    }
+    .region-row .profile-chip {
+      font-size: 9px;
+      padding: 1px 5px;
+    }
+
+    .side-grip {
+      position: absolute; right: -18px; top: 0; bottom: 0; width: 18px;
+      border: 1px solid var(--line); background: var(--panel-2); color: var(--text); display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 41;
+      transition: background-color .18s ease, color .18s ease, opacity .18s ease, border-color .18s ease, transform .18s ease;
+    }
+    .sidebar-shell.collapsed .side-grip {
+      opacity: 0;
+      pointer-events: none;
+    }
+    .sidebar-corner-resizer {
+      position: absolute;
+      right: 2px;
+      bottom: 2px;
+      width: 16px;
+      height: 16px;
+      cursor: nwse-resize;
+      background: linear-gradient(135deg, transparent 0 44%, #58635f 44% 50%, transparent 50% 58%, #58635f 58% 64%, transparent 64%);
+      opacity: .85;
+      z-index: 42;
+    }
+    .sidebar-shell.collapsed .sidebar-corner-resizer {
+      opacity: 0;
+      pointer-events: none;
+    }
+    .sidebar-restore {
+      position: absolute; top: calc(var(--header-h) + var(--toolbar-h) + 18px); left: 0; bottom: 10px; width: 18px;
+      border: 1px solid var(--line); background: var(--panel-2); color: var(--text); cursor: pointer; display: none; z-index: 41;
+      transition: background-color .18s ease, color .18s ease, opacity .18s ease, border-color .18s ease, transform .18s ease;
+      align-items: center; justify-content: center;
+    }
+    .sidebar-shell.collapsed + .sidebar-restore { display: flex; }
+
+    .machine-drawer {
+        visibility: hidden;
+      position: absolute; top: var(--header-h); left: 50%; transform: translateX(-50%) translateY(-100%);
+      min-width: 50%; max-width: calc(100vw - 40px);
+      background: var(--panel); border-inline: 1px solid var(--line);border-bottom: 1px solid var(--line); box-shadow: 0 10px 22px var(--shadow);
+      z-index: 60; padding-top: 12px; display: flex; flex-direction: column; transition: transform .18s ease;
+      height:calc(100% - var(--header-h));
+    }
+    .machine-drawer.open {
+        visibility: visible;
+      transform: translateX(-50%) translateY(0);
+    }
+    #machineToggleBtn{
+        border-left: 1px solid var(--line);
+    }
+    .machine-body { flex: 1 1 auto; min-height: 0; overflow: auto; padding: 10px; }
+
+    .settings-drawer {
+      position: absolute; top: var(--header-h); right: 0; bottom: 0; width: var(--settings-w); transform: translateX(100%);
+      transition: transform .18s ease; background: var(--panel); border-left: 1px solid var(--line); box-shadow: -8px 0 18px var(--shadow);
+      z-index: 60; padding-top: 12px; display: flex; flex-direction: column;
+    }
+    .settings-drawer.open { transform: translateX(0); }
+    .drawer-head {
+      height: 40px; min-height: 40px; display: flex; align-items: center; justify-content: space-between; background: var(--panel-2); border-bottom: 1px solid var(--line); padding: 0 8px;
+    }
+    .drawer-body { flex: 1 1 auto; min-height: 0; overflow: auto; padding: 10px; }
+    .drawer-section { margin-bottom: 14px; }
+    .drawer-section-title { margin-top: 1vh; color: var(--muted); font-size: 11px; letter-spacing: .06em; text-transform: uppercase; }
+    .form-grid { display: grid; }
+    .mui-field { position: relative; margin-top: 2vh; }
+    .mui-field label {
+        position: absolute; top: -8px; left: 10px; padding: 0 6px; font-size: 13px;
+      color: var(--muted); background: var(--panel); line-height: 1;
+      z-index: 5; border: 1px solid var(--line); border-radius: 5px;
+
+    }
+    .mui-field input, .mui-field select {
+      width: 100%; padding: 11px 10px 9px 10px; border: 1px solid var(--line); background: var(--panel); color: var(--text); outline: none;
+    }
+
+    .floating-editor {
+      position: absolute; top: calc(var(--header-h) + 88px); left: 360px; z-index: 52;
+      overflow: visible;
+    }
+    .editor-resize-shell {
+      width: var(--editor-w); height: var(--editor-h); display: flex; flex-direction: column;
+      background: var(--panel); border: 1px solid var(--line); box-shadow: 0 10px 22px var(--shadow);
+      padding-top: 12px; padding: 1vh;
+      resize: both; min-width: 300px; min-height: 220px; max-width: calc(100vw - 24px); max-height: calc(100vh - 84px);
+      overflow: hidden;
+    }
+    .editor-inner {
+      width: 100%; height: 100%; display: flex; flex-direction: column;
+      overflow: hidden;
+      background: var(--panel);
+    }
+    .editor-head {
+      display: flex; flex-direction: column; align-items: stretch; justify-content: center; background: var(--panel-2); border-bottom: 1px solid var(--line); cursor: move;
+    }
+    .editor-titlebar {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: stretch;
+      min-height: 34px;
+    }
+    .editor-name { font-size: 12px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; padding: 1vh; text-align: center; background-color: var(--hover); }
+    .editor-hide-btn {
+        font-size: small;
+      min-width: 46px;
+      border: 0;
+      border-inline: 1px solid var(--line);
+      border-top: 1px solid var(--line);
+      height: 2vh;
+      position: absolute;
+      right:0;
+      top: -2vh;
+      border-top-left-radius: 5px;
+      border-top-right-radius: 5px;
+      background: var(--panel);
+      color: var(--text);
+      cursor: pointer;
+      transition: background-color .18s ease, color .18s ease, opacity .18s ease, border-color .18s ease, transform .18s ease;
+    }
+    .editor-hide-btn:hover {
+      background: var(--hover);
+    }
+    .editor-hide-btn:active {
+      opacity: .72;
+      transform: scale(0.985);
+    }
+    .editor-tabs { display: flex; align-items: stretch; height: 35px; flex: 0 0 auto; overflow-x: auto; }
+    .editor-body { flex: 1 1 auto; min-height: 0; overflow: auto; padding-right: 2px; }
+    .tab-disabled { opacity: .45; pointer-events: none; }
+
+    .preview-shell {
+      position: absolute; top: calc(var(--header-h) + var(--toolbar-h) + 18px); right: 0; z-index: 49; display: flex; align-items: stretch;
+      height: 20vh;
+      transition: transform .18s ease;
+      transform: translateX(0);
+      border-block: 1px solid var(--line);
+    }
+    .preview-shell.collapsed {
+      transform: translateX(calc(100% - 18px));
+    }
+    .preview-grip {
+      width: 18px; border: 1px solid var(--line); background: var(--panel-2); color: var(--text); display: flex; align-items: center; justify-content: center; cursor: pointer;
+      transition: background-color .18s ease, color .18s ease, opacity .18s ease, border-color .18s ease, transform .18s ease;
+    }
+    .preview-panel {
+      display: flex; flex-direction: column; align-items: center; border-left: 1px solid var(--line); padding: 1vh; height: 100%; background: var(--panel);
+      opacity: 1;
+      transition: opacity .18s ease;
+    }
+    .preview-shell.collapsed .preview-panel {
+      opacity: .15;
+      pointer-events: none;
+    }
+    .inspector-content { min-width: var(--preview-w); max-width: 420px; height: 100%; }
+    #inspectorContentBody { height: 100%; overflow-y: auto; }
+    .toggle-list { display: grid; width: 100%; }
+    .toggle-row {
+      display: flex; align-items: center; justify-content: space-between; padding: 8px 10px; border-bottom: 1px solid var(--line); background: var(--panel); cursor: pointer;
+    }
+
+    .dev-shell {
+      position: absolute; right: 10px; bottom:0; width: var(--dev-w); height: var(--dev-h); min-width: 320px; min-height: 44px; max-width: calc(100vw - 20px); max-height: 70vh;
+      display: flex; flex-direction: column; background: var(--panel); border: 1px solid var(--line); box-shadow: 0 10px 22px var(--shadow); z-index: 45;
+      transition: transform .18s ease;
+      transform: translateY(0);
+      margin-bottom:1vh;
+    }
+    .dev-shell.collapsed {
+        bottom: -1vh;
+      transform: translateY(calc(100% - 18px));
+    }
+    .dev-toggle-bar {
+      position: relative;
+      width: 100%;
+      height: 18px;
+      flex: 0 0 18px;
+      border: 0;
+      border-bottom: 1px solid var(--line);
+      background: var(--panel-2);
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background-color .18s ease, color .18s ease, opacity .18s ease, border-color .18s ease, transform .18s ease;
+    }
+    .dev-toggle-bar:hover {
+      background: var(--hover);
+    }
+    .dev-toggle-bar:active {
+      opacity: .72;
+      transform: scale(0.985);
+    }
+    .dev-shell .dev-body, .dev-shell .dev-tabs, .dev-shell .clear-btn, .dev-shell .dev-head, .dev-shell .floating-label, .dev-shell .dev-resizer {
+      transition: opacity .18s ease;
+      opacity: 1;
+    }
+    .dev-shell.collapsed .dev-body, .dev-shell.collapsed .dev-tabs, .dev-shell.collapsed .clear-btn, .dev-shell.collapsed .dev-head, .dev-shell.collapsed .floating-label, .dev-shell.collapsed .dev-resizer {
+      opacity: 0;
+      pointer-events: none;
+    }
+    .dev-resizer {
+      position: absolute; top: 0; left: -1px; width: 18px; height: 18px; cursor: nwse-resize;
+      background: linear-gradient(135deg, transparent 0 44%, #58635f 44% 50%, transparent 50% 58%, #58635f 58% 64%, transparent 64%); opacity: .8;
+    }
+    .dev-head {
+      height: 28px; min-height: 28px; display: flex; align-items: center; justify-content: space-between; padding: 0 6px 0 8px; background: var(--panel-2); border-bottom: 1px solid var(--line); position: relative; z-index: 1;
+    }
+    .dev-titlebar, .dev-tabs, .dev-controls { display: flex; align-items: stretch; height: 100%; }
+    .dev-icon {
+      min-width: 56px;
+      height: 28px;
+      margin-left: 8px;
+      padding: 0 10px;
+      background: transparent;
+      border: 0;
+      color: var(--text);
+      cursor: pointer;
+    }
+    .dev-body { flex: 1 1 auto; min-height: 0; overflow: auto; padding: 10px; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12px; }
+    .dev-pane { display: none; }
+    .dev-pane.active { display: block; }
+    .log-entry { border: 1px solid var(--line); background: var(--panel-2); color: var(--text); padding: 8px 9px; margin-bottom: 8px; line-height: 1.45; }
+
+    .context-menu {
+      position: absolute; min-width: 180px; background: var(--panel); border: 1px solid var(--line); box-shadow: 0 10px 22px var(--shadow); padding: 6px; z-index: 80; display: none;
+    }
+    .context-menu.open { display: block; }
+    .context-item { padding: 8px 9px; cursor: pointer; transition: background-color .18s ease, color .18s ease, opacity .18s ease, transform .18s ease; }
+
+    *::-webkit-scrollbar { width: 10px; height: 10px; }
+    *::-webkit-scrollbar-thumb { background: #3a4440; border-radius: 999px; border: 2px solid transparent; background-clip: padding-box; }
+    *::-webkit-scrollbar-track { background: #181d1b; }
+  </style>
+
+
+</head>
+<body id="body">
+<div id="app">
+  <canvas id="viewport"></canvas>
+
+  <header class="topbar">
+    <div class="menus-wrap">
+      <div class="pipebar">
+        <button class="menu-btn" data-menu="file">File</button>
+        <button class="menu-btn" data-menu="layout">Layout</button>
+      </div>
+    </div>
+    <div class="menus-wrap" style="justify-content:center;">
+      <button class="pipebtn" id="machineToggleBtn">Machine</button>
+    </div>
+    <div class="actions-wrap">
+      <div class="status-text" id="statusText">Ready</div>
+      <button class="pipebtn" id="settingsToggleBtn">Settings</button>
+    </div>
+  </header>
+
+  <div class="dropdown" id="fileMenu">
+    <div class="dropdown-item" id="importStlItem">Import STL</div>
+    <input id="hiddenImportStlInput" type="file" multiple style="display: none;"></input>
+    <div class="dropdown-item" id="loadDemoStlBtn">Load Demo STL</div>
+    <div class="dropdown-item" id="importProjectItem">Import Project</div>
+    <div class="dropdown-item" id="exportGcodeItem">Export G-code</div>
+    <div class="dropdown-item" id="exportDebugItem">Export Debug Data</div>
+  </div>
+  <div class="dropdown" id="layoutMenu">
+    <div class="dropdown-item" id="saveLayoutItem">Save Layout</div>
+    <div class="dropdown-item" id="resetLayoutItem">Reset Layout</div>
+    <div class="dropdown-item" id="toggleEditorItem">Toggle Object Editor</div>
+    <div class="dropdown-item" id="toggleDevItem">Toggle Dev Panel</div>
+  </div>
+  
+    <div class="dropdown-item">Nozzle: 0.4 mm</div>
+    <div class="dropdown-item">Bed: 300 × 300</div>
+  </div>
+
+  <div class="viewport-toolbar">
+    <div class="mui-bar">
+      <div class="floating-label">Viewport</div>
+      <div class="pipebar">
+        <div class="focus-label" id="focusLabel">View: whole plate</div>
+        <button class="pipebtn" id="focusSelectedBtn">Focus Selected</button>
+        <button class="pipebtn" id="showWholeBtn">Whole Plate</button>
+        <button class="pipebtn" id="zoomInBtn">+</button>
+        <button class="pipebtn" id="zoomOutBtn">−</button>
+        <button class="pipebtn" id="zoomResetBtn">⟳</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="sidebar-shell" id="sidebarShell">
+    <div class="sidebar-resize-shell" id="sidebarResizeShell">
+    <aside class="sidebar">
+      <div class="sidebar-head">
+        <div class="sidebar-head-top">
+          <div class="sidebar-title">Build Plate</div>
+        </div>
+      </div>
+      <div class="sidebar-body" id="sidebarBody"></div>
+    </aside>
+    <div class="sidebar-corner-resizer" id="sidebarCornerResizer" title="Resize sidebar"></div>
+    </aside>
+    </div>
+    <button class="side-grip" id="sidebarGrip" title="Toggle sidebar">⋮</button>
+  </div>
+  <button class="sidebar-restore" id="sidebarRestoreBtn" title="Open sidebar">⋮</button>
+
+  <section class="machine-drawer" id="machineDrawer">
+    <div class="floating-label">Machine</div>
+    <div class="drawer-head">
+      <div class="pipebar">
+        <button class="tab-btn active" data-machine-tab="general">General</button>
+        <button class="tab-btn" data-machine-tab="custom-gcode">Custom G-code</button>
+        <button class="tab-btn" data-machine-tab="machine-limits">Machine Limits</button>
+        <button class="tab-btn" data-machine-tab="extruder-1">Extruder 1</button>
+      </div>
+    </div>
+    <div class="machine-body" id="machineBody"></div>
+  </section>
+
+  <aside class="settings-drawer" id="settingsDrawer">
+    <div class="floating-label">Settings</div>
+    <div class="drawer-head">
+      <div class="pipebar">
+        <button class="tab-btn active" data-settings-tab="general">General</button>
+        <button class="tab-btn" data-settings-tab="viewport">Viewport</button>
+      </div>
+    </div>
+    <div class="drawer-body" id="settingsBody"></div>
+  </aside>
+
+  <section class="floating-editor" id="objectEditor">
+    <div class="floating-label">Object Editor</div>
+    <button class="editor-hide-btn" id="editorHideBtn" title="Hide editor">Hide</button>
+    <div class="editor-resize-shell">
+    <div class="editor-inner">
+    <div class="editor-head" id="editorHead">
+      <div class="editor-titlebar">
+        <div class="editor-name" id="editorTargetTitle">[IMPORT STL]</div>
+      </div>
+      <div class="editor-tabs" id="editorTabs"></div>
+    </div>
+    <div class="editor-body" id="editorBody"></div>
+    </div>
+    </div>
+  </section>
+
+  <section class="preview-shell" id="previewShell">
+    <button class="preview-grip" id="previewToggleBtn">⋮</button>
+    <div class="preview-panel">
+      <div class="mui-bar">
+        <div class="floating-label">Preview</div>
+        <div class="pipebar">
+          <button class="inspector-chip active" data-inspector="STL">STL</button>
+          <button class="inspector-chip" data-inspector="GCODE">GCODE</button>
+        </div>
+      </div>
+      <div class="mui-bar inspector-content" id="inspectorContent">
+        <div class="floating-label" id="inspectorContentLabel">STL</div>
+        <div id="inspectorContentBody"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="dev-shell" id="devShell">
+    <button class="dev-toggle-bar" id="devToggleBar" title="Toggle dev panel">⋮</button>
+    <div class="floating-label">Dev Panel</div>
+    <div class="dev-resizer" id="devResizer"></div>
+    <div class="dev-head">
+      <div class="dev-titlebar">
+        <div class="dev-tabs" id="devTabs"></div>
+      </div>
+      <div class="dev-controls">
+        <button class="dev-icon clear-btn" id="clearDevBtn">Clear</button>
+      </div>
+    </div>
+    <div class="dev-body">
+      <div class="dev-pane active" data-pane="log" id="logPane"></div>
+    </div>
+  </section>
+
+  <div class="context-menu" id="contextMenu"></div>
+</div>
+
+<script>
+let init=0;
+function uiInit(){init++; ; initAll(init);}
+function computeInit(){init++; initAll(init);}
+function stateInit(){init++; initAll(init);};
+function initAll(init){
+  if(init == 3){
+    slicerApp.init();
+    state.init();
+    document.getElementById("hiddenImportStlInput").addEventListener('change', ()=>{compute.importSTL(event)});
+    document.getElementById('loadDemoStlBtn').addEventListener('click', async () => {
+        compute.loadDemoSTL();
+    });
+  }
+}
+
+</script>
+<script onload="computeInit()" src="computation.js"></script>
+<script onload="stateInit()" src="state.js"></script>
+<script onload="uiInit()" src="ui.js"></script>
+
+</body>
+</html>
