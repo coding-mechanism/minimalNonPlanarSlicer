@@ -980,13 +980,26 @@ const compute = {
                 stlObject.planarScaffold.zShift = 0;
                 zTranslationInput.value = 0;
                 zTranslationInput.disabled = true;
-                let Zmin = stlObject.findZmin(stlObject.planarScaffold.triangles);
                 stlObject.planarScaffold.Zmin = true;
                 compute.rotateView(state.buildPlate.xAngle, state.buildPlate.yAngle, state.buildPlate.zAngle);
+                stlObject.checked = true;
             } else{
                 zTranslationInput.disabled = false;
                 stlObject.planarScaffold.Zmin = false;
+                stlObject.checked = false;
             }
+        },
+
+        findZmin(triangles){
+            let Zmin = triangles[0].vertices[0].z;
+            for(let i = 0; i < triangles.length; i++){
+                for(let j = 0; j < triangles[i].vertices.length; j++){
+                    if(triangles[i].vertices[j].z < Zmin){
+                        Zmin = triangles[i].vertices[j].z;
+                    }
+                }
+            }
+            return Zmin;
         },
 
         settingsButtonHover(event){
@@ -1158,7 +1171,7 @@ const compute = {
                 compute.rotateSTL(stlObject.planarScaffold.triangles, stlObject.planarScaffold.triangles, stlObject.planarScaffold.xAngle, stlObject.planarScaffold.yAngle, stlObject.planarScaffold.zAngle);
 
                 if(stlObject.planarScaffold.Zmin){
-                    let Zmin = stlObject.findZmin(stlObject.planarScaffold.triangles);
+                    let Zmin = compute.findZmin(stlObject.planarScaffold.triangles);
                     center[2] = -1 * Zmin;
                     stlObject.planarScaffold.zShift = 0;
                 }
@@ -1205,7 +1218,7 @@ const compute = {
                 compute.rotateSTL(stlObject.planarScaffold.origTriangles, stlObject.planarScaffold.triangles, stlObject.planarScaffold.xAngle, stlObject.planarScaffold.yAngle, stlObject.planarScaffold.zAngle);
 //                rotateSTL(stlObject.nonPlanarTopSurface.origTriangles, stlObject.nonPlanarTopSurface.triangles, stlObject.planarScaffold.xAngle, stlObject.planarScaffold.yAngle, stlObject.planarScaffold.zAngle);
                 if(document.getElementById("zMinInputId").checked){
-                    let Zmin = stlObject.findZmin(stlObject.planarScaffold.triangles);
+                    let Zmin = compute.findZmin(stlObject.planarScaffold.triangles);
                     compute.translateStl(stlObject.planarScaffold.origTriangles, stlObject.planarScaffold.triangles, center[0]+stlObject.planarScaffold.xShift, center[1] + stlObject.planarScaffold.yShift, center[2] + Zmin  -1);
                     //
                 } else {

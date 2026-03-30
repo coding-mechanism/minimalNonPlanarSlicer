@@ -832,6 +832,14 @@ const slicerApp = {
         btn.addEventListener('click', () => {
           state.editorTab = btn.dataset.editorTab;
           this.renderEditor();
+          let zMinInput = document.getElementById("zMinInputId");
+        if(zMinInput){
+          if(object.checked){
+              zMinInput.checked = true;
+          } else {
+              zMinInput.checked = false;
+          }
+        }
         });
       });
   
@@ -843,6 +851,12 @@ const slicerApp = {
         this.renderSidebar();
         this.renderEditor();
         this.renderStatus();
+        let zMinInput = document.getElementById("zMinInputId");
+        if(object.checked){
+            zMinInput.checked = true;
+        } else {
+            zMinInput.checked = false;
+        }
       });
       if (objectNonPlanarBtn) objectNonPlanarBtn.addEventListener('click', () => {
         object.objectPrintMode = 'non-planar';
@@ -850,6 +864,12 @@ const slicerApp = {
         this.renderSidebar();
         this.renderEditor();
         this.renderStatus();
+        let zMinInput = document.getElementById("zMinInputId");
+        if(object.checked){
+            zMinInput.checked = true;
+        } else {
+            zMinInput.checked = false;
+        }
       });
   
       const regionPlanarBtn = document.getElementById('region-mode-planar-btn');
@@ -878,7 +898,8 @@ const slicerApp = {
         const zShiftInput = document.getElementById('zTranslationInputId');
         const slopeInput = document.getElementById('maxSlopeAngleId');
         const nonPlanarZ = document.getElementById('zTranslationInputNonPlanarId');
-  
+        const zMinInput = document.getElementById('zMinInputId');
+        
         const markPositionDirty = () => {
           object.xAngle = Number(xRotInput?.value || 0);
           object.yAngle = Number(yRotInput?.value || 0);
@@ -890,7 +911,7 @@ const slicerApp = {
           target._editorStore.surface.fields.zTranslation = nonPlanarZ?.value || target._editorStore.surface.fields.zTranslation;
           object.maxSlopeAngle = Number(target._editorStore.surface.fields.maxSlopeAngle || 0);
           object.nonPlanarZOffset = Number(target._editorStore.surface.fields.zTranslation || 0);
-                  state.dirty = true;
+          state.dirty = true;
           this.renderSidebar();
           this.renderStatus();
         };
