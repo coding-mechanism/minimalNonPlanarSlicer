@@ -10,37 +10,38 @@ const compute = {
         loadDemoSTL(){
                 let stlObject = state.demoSTL;
                 state.objects.set(stlObject.id, stlObject);
+                state.nodes.set(stlObject.id, stlObject);
                 state.selectedId = stlObject.id;
-                slicerApp.selectNode(stlObject, 'object', stlObject);
+                slicerApp.selectNode(stlObject.id);
                 if(state.buildPlate.originCenter == 'corner'){
-                    for(let i = 0; i < stlObject.planarScaffold.origTriangles.length; i++){
-                        stlObject.planarScaffold.origTriangles[i].vertices[0].x += state.buildPlate.buildPlateOrbitCenterOffset.x;
-                        stlObject.planarScaffold.origTriangles[i].vertices[0].y += state.buildPlate.buildPlateOrbitCenterOffset.y;
-                        stlObject.planarScaffold.origTriangles[i].vertices[0].z += state.buildPlate.buildPlateOrbitCenterOffset.z;
-                        stlObject.planarScaffold.origTriangles[i].vertices[1].x += state.buildPlate.buildPlateOrbitCenterOffset.x;
-                        stlObject.planarScaffold.origTriangles[i].vertices[1].y += state.buildPlate.buildPlateOrbitCenterOffset.y;
-                        stlObject.planarScaffold.origTriangles[i].vertices[1].z += state.buildPlate.buildPlateOrbitCenterOffset.z;
-                        stlObject.planarScaffold.origTriangles[i].vertices[2].x += state.buildPlate.buildPlateOrbitCenterOffset.x;
-                        stlObject.planarScaffold.origTriangles[i].vertices[2].y += state.buildPlate.buildPlateOrbitCenterOffset.y;
-                        stlObject.planarScaffold.origTriangles[i].vertices[2].z += state.buildPlate.buildPlateOrbitCenterOffset.z;
+                    for(let i = 0; i < stlObject.origTriangles.length; i++){
+                        stlObject.origTriangles[i].vertices[0].x += state.buildPlate.buildPlateOrbitCenterOffset.x;
+                        stlObject.origTriangles[i].vertices[0].y += state.buildPlate.buildPlateOrbitCenterOffset.y;
+                        stlObject.origTriangles[i].vertices[0].z += state.buildPlate.buildPlateOrbitCenterOffset.z;
+                        stlObject.origTriangles[i].vertices[1].x += state.buildPlate.buildPlateOrbitCenterOffset.x;
+                        stlObject.origTriangles[i].vertices[1].y += state.buildPlate.buildPlateOrbitCenterOffset.y;
+                        stlObject.origTriangles[i].vertices[1].z += state.buildPlate.buildPlateOrbitCenterOffset.z;
+                        stlObject.origTriangles[i].vertices[2].x += state.buildPlate.buildPlateOrbitCenterOffset.x;
+                        stlObject.origTriangles[i].vertices[2].y += state.buildPlate.buildPlateOrbitCenterOffset.y;
+                        stlObject.origTriangles[i].vertices[2].z += state.buildPlate.buildPlateOrbitCenterOffset.z;
                     }
                 }
                  else {
-                    for(let i = 0; i < stlObject.planarScaffold.origTriangles.length; i++){
-                        stlObject.planarScaffold.origTriangles[i].vertices[0].x += state.buildPlate.buildPlateOrbitCenter.x;
-                        stlObject.planarScaffold.origTriangles[i].vertices[0].y += state.buildPlate.buildPlateOrbitCenter.y;
-                        stlObject.planarScaffold.origTriangles[i].vertices[0].z += state.buildPlate.buildPlateOrbitCenter.z;
-                        stlObject.planarScaffold.origTriangles[i].vertices[1].x += state.buildPlate.buildPlateOrbitCenter.x;
-                        stlObject.planarScaffold.origTriangles[i].vertices[1].y += state.buildPlate.buildPlateOrbitCenter.y;
-                        stlObject.planarScaffold.origTriangles[i].vertices[1].z += state.buildPlate.buildPlateOrbitCenter.z;
-                        stlObject.planarScaffold.origTriangles[i].vertices[2].x += state.buildPlate.buildPlateOrbitCenter.x;
-                        stlObject.planarScaffold.origTriangles[i].vertices[2].y += state.buildPlate.buildPlateOrbitCenter.y;
-                        stlObject.planarScaffold.origTriangles[i].vertices[2].z += state.buildPlate.buildPlateOrbitCenter.z;
+                    for(let i = 0; i < stlObject.origTriangles.length; i++){
+                        stlObject.origTriangles[i].vertices[0].x += state.buildPlate.buildPlateOrbitCenter.x;
+                        stlObject.origTriangles[i].vertices[0].y += state.buildPlate.buildPlateOrbitCenter.y;
+                        stlObject.origTriangles[i].vertices[0].z += state.buildPlate.buildPlateOrbitCenter.z;
+                        stlObject.origTriangles[i].vertices[1].x += state.buildPlate.buildPlateOrbitCenter.x;
+                        stlObject.origTriangles[i].vertices[1].y += state.buildPlate.buildPlateOrbitCenter.y;
+                        stlObject.origTriangles[i].vertices[1].z += state.buildPlate.buildPlateOrbitCenter.z;
+                        stlObject.origTriangles[i].vertices[2].x += state.buildPlate.buildPlateOrbitCenter.x;
+                        stlObject.origTriangles[i].vertices[2].y += state.buildPlate.buildPlateOrbitCenter.y;
+                        stlObject.origTriangles[i].vertices[2].z += state.buildPlate.buildPlateOrbitCenter.z;
                     }
                 };
-
+                compute.createStlSurfaces();
                 compute.rotateView(state.buildPlate.xAngle, state.buildPlate.yAngle, state.buildPlate.zAngle);
-                slicerApp.renderSidebar();
+                slicerApp.render('sidebar');
         },
 
         fileInputChange(stl){
@@ -71,37 +72,39 @@ const compute = {
                     stlObject.name = id;
                 }
                 state.objects.set(stlObject.id, stlObject);
-                state.selectedId = stlObject.id;
-                slicerApp.selectNode(stlObject, 'object', stlObject);
+                state.nodes.set(stlObject.id, stlObject);
+
+                slicerApp.selectNode(stlObject.id);
                 if(state.buildPlate.originCenter == 'corner'){
-                    for(let i = 0; i < stlObject.planarScaffold.origTriangles.length; i++){
-                        stlObject.planarScaffold.origTriangles[i].vertices[0].x += state.buildPlate.buildPlateOrbitCenterOffset.x;
-                        stlObject.planarScaffold.origTriangles[i].vertices[0].y += state.buildPlate.buildPlateOrbitCenterOffset.y;
-                        stlObject.planarScaffold.origTriangles[i].vertices[0].z += state.buildPlate.buildPlateOrbitCenterOffset.z;
-                        stlObject.planarScaffold.origTriangles[i].vertices[1].x += state.buildPlate.buildPlateOrbitCenterOffset.x;
-                        stlObject.planarScaffold.origTriangles[i].vertices[1].y += state.buildPlate.buildPlateOrbitCenterOffset.y;
-                        stlObject.planarScaffold.origTriangles[i].vertices[1].z += state.buildPlate.buildPlateOrbitCenterOffset.z;
-                        stlObject.planarScaffold.origTriangles[i].vertices[2].x += state.buildPlate.buildPlateOrbitCenterOffset.x;
-                        stlObject.planarScaffold.origTriangles[i].vertices[2].y += state.buildPlate.buildPlateOrbitCenterOffset.y;
-                        stlObject.planarScaffold.origTriangles[i].vertices[2].z += state.buildPlate.buildPlateOrbitCenterOffset.z;
+                    for(let i = 0; i < stlObject.origTriangles.length; i++){
+                        stlObject.origTriangles[i].vertices[0].x += state.buildPlate.buildPlateOrbitCenterOffset.x;
+                        stlObject.origTriangles[i].vertices[0].y += state.buildPlate.buildPlateOrbitCenterOffset.y;
+                        stlObject.origTriangles[i].vertices[0].z += state.buildPlate.buildPlateOrbitCenterOffset.z;
+                        stlObject.origTriangles[i].vertices[1].x += state.buildPlate.buildPlateOrbitCenterOffset.x;
+                        stlObject.origTriangles[i].vertices[1].y += state.buildPlate.buildPlateOrbitCenterOffset.y;
+                        stlObject.origTriangles[i].vertices[1].z += state.buildPlate.buildPlateOrbitCenterOffset.z;
+                        stlObject.origTriangles[i].vertices[2].x += state.buildPlate.buildPlateOrbitCenterOffset.x;
+                        stlObject.origTriangles[i].vertices[2].y += state.buildPlate.buildPlateOrbitCenterOffset.y;
+                        stlObject.origTriangles[i].vertices[2].z += state.buildPlate.buildPlateOrbitCenterOffset.z;
                     }
                 }
                  else {
-                    for(let i = 0; i < stlObject.planarScaffold.origTriangles.length; i++){
-                        stlObject.planarScaffold.origTriangles[i].vertices[0].x += state.buildPlate.buildPlateOrbitCenter.x;
-                        stlObject.planarScaffold.origTriangles[i].vertices[0].y += state.buildPlate.buildPlateOrbitCenter.y;
-                        stlObject.planarScaffold.origTriangles[i].vertices[0].z += state.buildPlate.buildPlateOrbitCenter.z;
-                        stlObject.planarScaffold.origTriangles[i].vertices[1].x += state.buildPlate.buildPlateOrbitCenter.x;
-                        stlObject.planarScaffold.origTriangles[i].vertices[1].y += state.buildPlate.buildPlateOrbitCenter.y;
-                        stlObject.planarScaffold.origTriangles[i].vertices[1].z += state.buildPlate.buildPlateOrbitCenter.z;
-                        stlObject.planarScaffold.origTriangles[i].vertices[2].x += state.buildPlate.buildPlateOrbitCenter.x;
-                        stlObject.planarScaffold.origTriangles[i].vertices[2].y += state.buildPlate.buildPlateOrbitCenter.y;
-                        stlObject.planarScaffold.origTriangles[i].vertices[2].z += state.buildPlate.buildPlateOrbitCenter.z;
+                    for(let i = 0; i < stlObject.origTriangles.length; i++){
+                        stlObject.origTriangles[i].vertices[0].x += state.buildPlate.buildPlateOrbitCenter.x;
+                        stlObject.origTriangles[i].vertices[0].y += state.buildPlate.buildPlateOrbitCenter.y;
+                        stlObject.origTriangles[i].vertices[0].z += state.buildPlate.buildPlateOrbitCenter.z;
+                        stlObject.origTriangles[i].vertices[1].x += state.buildPlate.buildPlateOrbitCenter.x;
+                        stlObject.origTriangles[i].vertices[1].y += state.buildPlate.buildPlateOrbitCenter.y;
+                        stlObject.origTriangles[i].vertices[1].z += state.buildPlate.buildPlateOrbitCenter.z;
+                        stlObject.origTriangles[i].vertices[2].x += state.buildPlate.buildPlateOrbitCenter.x;
+                        stlObject.origTriangles[i].vertices[2].y += state.buildPlate.buildPlateOrbitCenter.y;
+                        stlObject.origTriangles[i].vertices[2].z += state.buildPlate.buildPlateOrbitCenter.z;
                     }
                 };
 
+                compute.createStlSurfaces();
+                slicerApp.render();
                 compute.rotateView(state.buildPlate.xAngle, state.buildPlate.yAngle, state.buildPlate.zAngle);
-                slicerApp.renderSidebar();
                 //                slicerApp.drawViewport();
 //                let canvas = document.getElementById("viewport");
 //                canvas.width = canvas.width;
@@ -137,7 +140,7 @@ const compute = {
                 // nonPlanarTopSurface.xShift = xShift;
                 // nonPlanarTopSurface.yShift = yShift;
                 // nonPlanarTopSurface.zShift = zShift;
-                // stlObject.planarScaffold = planarScaffold;
+                // stlObject = planarScaffold;
                 // stlObject.nonPlanarTopSurface = nonPlanarTopSurface;
                 // updateCanvas();
             };
@@ -419,6 +422,7 @@ const compute = {
 
         copyTriangles(triangles){
             let copiedTriangles = [];
+            
             for(let i = 0; i < triangles.length; i++){
                 let triangleCopy = {vertices:[{x: 0, y:0, z:0}, {x: 0, y:0, z:0}, {x: 0, y:0, z:0}], normal: {normalX: 0, normalY: 0, normalZ: 0}};
                 triangleCopy.vertices[0].x = triangles[i].vertices[0].x;
@@ -927,9 +931,9 @@ const compute = {
         },
 
         updateStlTranslation(stlObject, x, y, z){
-            stlObject.planarScaffold.xShift = x;
-            stlObject.planarScaffold.yShift = y;
-            stlObject.planarScaffold.zShift = z;
+            stlObject.xShift = x;
+            stlObject.yShift = y;
+            stlObject.zShift = z;
         },
 
         translateStl(tIn, tOut, xShift, yShift, zShift){
@@ -972,34 +976,34 @@ const compute = {
             compute.rotateView(parseInt(event.clientY), parseInt(event.clientX), 0);
         },
 
-        updateZMin(){
-             let zMinInput= document.getElementById("zMinInputId");
-             let zTranslationInput = document.getElementById("zTranslationInputId");
+        updateZmin(){
+             let zMinInput= document.getElementById("zMin");
+             let zTranslationInput = document.getElementById("zShift");
              let stlObject = state.objects.get(state.selectedId);
              if(zMinInput.checked){
-                stlObject.planarScaffold.zShift = 0;
+                stlObject.zShift = 0;
                 zTranslationInput.value = 0;
                 zTranslationInput.disabled = true;
-                stlObject.planarScaffold.Zmin = true;
+                stlObject.zMin = true;
                 compute.rotateView(state.buildPlate.xAngle, state.buildPlate.yAngle, state.buildPlate.zAngle);
                 stlObject.checked = true;
             } else{
                 zTranslationInput.disabled = false;
-                stlObject.planarScaffold.Zmin = false;
+                stlObject.zMin = false;
                 stlObject.checked = false;
             }
         },
 
         findZmin(triangles){
-            let Zmin = triangles[0].vertices[0].z;
+            let zMin = triangles[0].vertices[0].z;
             for(let i = 0; i < triangles.length; i++){
                 for(let j = 0; j < triangles[i].vertices.length; j++){
-                    if(triangles[i].vertices[j].z < Zmin){
-                        Zmin = triangles[i].vertices[j].z;
+                    if(triangles[i].vertices[j].z < zMin){
+                        zMin = triangles[i].vertices[j].z;
                     }
                 }
             }
-            return Zmin;
+            return zMin;
         },
 
         settingsButtonHover(event){
@@ -1015,14 +1019,48 @@ const compute = {
             settingsDiv.classList.toggle("settingsDivHidden");
         },
 
-        updateMaxSlopeAngle(event){
+        updateMaxSlopeAngle(){
             let stlObject = state.objects.get(state.selectedId);
-            stlObject.prevMaxSlopeAngle = stlObject.maxSlopeAngle;
-            stlObject.maxSlopeAngle = event.target.value;
+            stlObject.maxSlopeAngle = parseFloat(document.getElementById("maxSlopeAngle").value);
+            compute.createStlSurfaces();
             compute.rotateView(state.buildPlate.xAngle, state.buildPlate.yAngle, state.buildPlate.zAngle);
-            slicerApp.renderSidebar();
         },
-        
+
+        createStlSurfaces(){
+                stlObject = state.objects.get(state.selectedId);
+                for(let i = 0; i < stlObject.children.length; i++){
+                    if(state.nodes.has(stlObject.children[i].id)){
+                        state.nodes.delete(stlObject.children[i].id);
+                    }
+                }
+                stlObject.children = [];
+                let bb = compute.findBoundingBox(stlObject.origTriangles);
+                bb = bb[bb.length-1];
+                let center = [((bb.xMax-bb.xMin)/2) + bb.xMin, ((bb.yMax - bb.yMin) /2) + bb.yMin, (bb.zMax - bb.zMin)/2 + bb.zMin];
+                compute.translateStl(stlObject.origTriangles, stlObject.triangles, center[0] * -1, center[1] * -1, center[2] * -1);
+                compute.rotateSTL(stlObject.triangles, stlObject.triangles, stlObject.xAngle, stlObject.yAngle, stlObject.zAngle);
+                if(stlObject.zMin){
+                    let zMin = compute.findZmin(stlObject.triangles);
+                    center[2] = -1 * zMin;
+                    stlObject.zShift = 0;
+                };
+                compute.reNormalizeTriangles(stlObject.triangles);
+                compute.translateStl(stlObject.triangles, stlObject.triangles, center[0] + stlObject.xShift, center[1] + stlObject.yShift, center[2] + stlObject.zShift);                
+                stlObject.children = compute.findTopFacingTriangles(stlObject.triangles, Math.sin(Math.abs(stlObject.maxSlopeAngle - 90)* Math.PI/ 180));
+                stlObject.children = compute.copyTriangles(stlObject.children);
+                stlObject.children = compute.extractConnectedComponentsFromTriangles(stlObject.children);
+
+                for(let i = 0; i < stlObject.children.length; i++){
+                    let triangles = compute.copyTriangles(stlObject.children[i].triangles);
+                    let surface = new Surface(stlObject, triangles, i);
+                    compute.translateStl(surface.origTriangles, surface.origTriangles, -1* stlObject.xShift, -1* stlObject.yShift, -1* stlObject.zShift);
+                    stlObject.children[i] = surface;
+                    state.nodes.set(surface.id, surface);
+
+                }
+        },
+
+
         updateCanvas(){
 //            state.buildPlate.updateBuildPlateDimensions();
 //            state.buildPlate.createBuildPlateSegments();
@@ -1030,35 +1068,35 @@ const compute = {
 //            state.buildPlate.rotateBuildPlate();
             state.buildPlate.drawSegmentsToCanvas(state.buildPlate.rotSegments);
             state.objects.forEach((stlObject)=>{
-            compute.drawTrianglesToCanvas(stlObject.planarScaffold.triangles, "#00ff00");
+            compute.drawTrianglesToCanvas(stlObject.triangles, "#00ff00");
             });
-            if(false && stlObject.planarScaffold && stlObject.planarScaffold.triangles){
+            if(false && stlObject && stlObject.triangles){
                 let maxSlopeAngle = Math.sin(Math.abs(document.getElementById("maxSlopeAngleId").value - 90) * Math.PI / 180);
                 let nonPlanarThickness = parseFloat(document.getElementById("nonPlanarThickness").value);
                 //find center of planarScaffold before rotation
-                let bb = findBoundingBox(stlObject.planarScaffold.origTriangles);
+                let bb = findBoundingBox(stlObject.origTriangles);
                 bb = bb[bb.length-1];
                 let center = [((bb.xMax-bb.xMin)/2) + bb.xMin, ((bb.yMax - bb.yMin) /2) + bb.yMin];
-                rotateSTL(stlObject.planarScaffold.origTriangles, stlObject.planarScaffold.triangles, stlObject.planarScaffold.xAngle, stlObject.planarScaffold.yAngle, stlObject.planarScaffold.zAngle);
-                rotateSTL(stlObject.nonPlanarTopSurface.origTriangles, stlObject.nonPlanarTopSurface.triangles, stlObject.planarScaffold.xAngle, stlObject.planarScaffold.yAngle, stlObject.planarScaffold.zAngle);
-                if(stlObject.planarScaffold.zMin !== false){
-                    let bb = findBoundingBox(stlObject.planarScaffold.triangles);
+                rotateSTL(stlObject.origTriangles, stlObject.triangles, stlObject.xAngle, stlObject.yAngle, stlObject.zAngle);
+                rotateSTL(stlObject.nonPlanarTopSurface.origTriangles, stlObject.nonPlanarTopSurface.triangles, stlObject.xAngle, stlObject.yAngle, stlObject.zAngle);
+                if(stlObject.zMin !== false){
+                    let bb = findBoundingBox(stlObject.triangles);
                     bb = bb[bb.length-1];
-                    stlObject.planarScaffold.zMin = bb.zMin * -1;
+                    stlObject.zMin = bb.zMin * -1;
                 }
-                bb = findBoundingBox(stlObject.planarScaffold.triangles);
+                bb = findBoundingBox(stlObject.triangles);
                 bb = bb[bb.length-1];
                 let centerAfterRotation = [((bb.xMax-bb.xMin)/2) + bb.xMin, ((bb.yMax - bb.yMin) /2) + bb.yMin];
                 let centerXShift = center[0] - centerAfterRotation[0];
                 let centerYShift = center[1] - centerAfterRotation[1];
-                translateStl(stlObject.planarScaffold.triangles, stlObject.planarScaffold.triangles, stlObject.planarScaffold.xShift + centerXShift, stlObject.planarScaffold.yShift + centerYShift, stlObject.planarScaffold.zShift + stlObject.planarScaffold.zMin);
-                translateStl(stlObject.nonPlanarTopSurface.triangles, stlObject.nonPlanarTopSurface.triangles, stlObject.nonPlanarTopSurface.xShift + stlObject.planarScaffold.xShift + centerXShift, stlObject.nonPlanarTopSurface.yShift + stlObject.planarScaffold.yShift + centerYShift, stlObject.nonPlanarTopSurface.zShift + stlObject.planarScaffold.zMin + stlObject.planarScaffold.zShift);
+                translateStl(stlObject.triangles, stlObject.triangles, stlObject.xShift + centerXShift, stlObject.yShift + centerYShift, stlObject.zShift + stlObject.zMin);
+                translateStl(stlObject.nonPlanarTopSurface.triangles, stlObject.nonPlanarTopSurface.triangles, stlObject.nonPlanarTopSurface.xShift + stlObject.xShift + centerXShift, stlObject.nonPlanarTopSurface.yShift + stlObject.yShift + centerYShift, stlObject.nonPlanarTopSurface.zShift + stlObject.zMin + stlObject.zShift);
 
-                reNormalizeTriangles(stlObject.planarScaffold.triangles);
+                reNormalizeTriangles(stlObject.triangles);
                 reNormalizeTriangles(stlObject.nonPlanarTopSurface.triangles); //only needs to be done when planarScaffold is rotated
 
-//                let lexiSortedPoints = lexiSortPointsFromTriangles(stlObject.planarScaffold.triangles);
-//                let lexiSortedTrianglesZdecrease = decreaseZInTopFacingTrianglesFromLexiPoints(stlObject.planarScaffold.triangles, lexiSortedPoints, nonPlanarThickness, maxSlopeAngle);
+//                let lexiSortedPoints = lexiSortPointsFromTriangles(stlObject.triangles);
+//                let lexiSortedTrianglesZdecrease = decreaseZInTopFacingTrianglesFromLexiPoints(stlObject.triangles, lexiSortedPoints, nonPlanarThickness, maxSlopeAngle);
 
 //                let tft = findTopFacingTriangles(stlObject.nonPlanarTopSurface.triangles, maxSlopeAngle);
 //                let extractedConnectedComponents = extractConnectedComponentsFromTriangles(tft);
@@ -1144,15 +1182,21 @@ const compute = {
         },
 
         translateStlFromInput(){
-            let xTranslationInput = parseFloat(document.getElementById("xTranslationInputId").value);
-            let yTranslationInput = parseFloat(document.getElementById("yTranslationInputId").value);
-            let zTranslationInput = parseFloat(document.getElementById("zTranslationInputId").value);
-            let zTranslationInputNonPlanar = parseFloat(document.getElementById("zTranslationInputNonPlanarId").value);
+            let xTranslationInput = parseFloat(document.getElementById("xShift").value);
+            let yTranslationInput = parseFloat(document.getElementById("yShift").value);
+            let zTranslationInput = parseFloat(document.getElementById("zShift").value);
+            let zTranslationInputNonPlanar = parseFloat(document.getElementById("nonPlanarZOffset").value);
             stlObject = state.objects.get(state.selectedId);
-            stlObject.planarScaffold.xShift = xTranslationInput;
-            stlObject.planarScaffold.yShift = yTranslationInput;
-            stlObject.planarScaffold.zShift = zTranslationInput;
-            stlObject.nonPlanarSurfaceOffset = zTranslationInputNonPlanar;
+            stlObject.xShift = xTranslationInput;
+            stlObject.yShift = yTranslationInput;
+            stlObject.zShift = zTranslationInput;
+            for(let i = 0; i < stlObject.children.length; i++){
+                stlObject.children[i].xShift = stlObject.xShift;
+                stlObject.children[i].yShift = stlObject.yShift;
+                stlObject.children[i].zShift = stlObject.zShift;
+
+            }
+            stlObject.nonPlanarZOffset = zTranslationInputNonPlanar;
             compute.rotateView(state.buildPlate.xAngle, state.buildPlate.yAngle, state.buildPlate.zAngle);
         },
 
@@ -1162,78 +1206,87 @@ const compute = {
             state.buildPlate.zAngle = zAngle;
             state.buildPlate.rotateBuildPlate();
             state.buildPlate.drawSegmentsToCanvas(state.buildPlate.rotSegments);
-            state.objects.forEach((stlObject)=>{
-                if(stlObject.visible){
-                let bb = compute.findBoundingBox(stlObject.planarScaffold.origTriangles);
-                bb = bb[bb.length-1];
-                let center = [((bb.xMax-bb.xMin)/2) + bb.xMin, ((bb.yMax - bb.yMin) /2) + bb.yMin, (bb.zMax - bb.zMin)/2 + bb.zMin];
-                compute.translateStl(stlObject.planarScaffold.origTriangles, stlObject.planarScaffold.triangles, center[0] * -1, center[1] * -1, center[2] * -1);
-                compute.rotateSTL(stlObject.planarScaffold.triangles, stlObject.planarScaffold.triangles, stlObject.planarScaffold.xAngle, stlObject.planarScaffold.yAngle, stlObject.planarScaffold.zAngle);
 
-                if(stlObject.planarScaffold.Zmin){
-                    let Zmin = compute.findZmin(stlObject.planarScaffold.triangles);
-                    center[2] = -1 * Zmin;
-                    stlObject.planarScaffold.zShift = 0;
-                }
-                compute.translateStl(stlObject.planarScaffold.triangles, stlObject.planarScaffold.triangles, center[0] + stlObject.planarScaffold.xShift, center[1] + stlObject.planarScaffold.yShift, center[2] + stlObject.planarScaffold.zShift);
-                compute.reNormalizeTriangles(stlObject.planarScaffold.triangles);
-                stlObject.children = compute.findTopFacingTriangles(stlObject.planarScaffold.triangles, Math.sin(Math.abs(stlObject.maxSlopeAngle - 90)* Math.PI/ 180));
-                stlObject.children = compute.copyTriangles(stlObject.children);
-                compute.translateStl(stlObject.children, stlObject.children, 0, 0, stlObject.nonPlanarSurfaceOffset);
-                stlObject.children = compute.extractConnectedComponentsFromTriangles(stlObject.children);
-                stlObject.prevMaxSlopeAngle = stlObject.maxSlopeAngle;
+            state.objects.forEach((stlObject)=>{
+
+                if(stlObject.visible){
+                    let bb = compute.findBoundingBox(stlObject.origTriangles);
+                    bb = bb[bb.length-1];
+                    let center = [((bb.xMax-bb.xMin)/2) + bb.xMin, ((bb.yMax - bb.yMin) /2) + bb.yMin, (bb.zMax - bb.zMin)/2 + bb.zMin];
+                    compute.translateStl(stlObject.origTriangles, stlObject.triangles, center[0] * -1, center[1] * -1, center[2] * -1);
+                    compute.rotateSTL(stlObject.triangles, stlObject.triangles, stlObject.xAngle, stlObject.yAngle, stlObject.zAngle);
+                    if(stlObject.zMin){
+                        let zMin =  compute.findZmin(stlObject.triangles);
+                        center[2] = -1 * zMin;
+                        stlObject.zShift = 0;
+                    };
+                    compute.translateStl(stlObject.triangles, stlObject.triangles, stlObject.xShift + center[0], stlObject.yShift + center[1], stlObject.zShift + center[2]);
+//                    compute.reNormalizeTriangles(stlObject.triangles);
+                // stlObject.children = compute.findTopFacingTriangles(stlObject.triangles, Math.sin(Math.abs(stlObject.maxSlopeAngle - 90)* Math.PI/ 180));
+                // stlObject.children = compute.copyTriangles(stlObject.children);
+                // stlObject.children = compute.extractConnectedComponentsFromTriangles(stlObject.children);
+//                stlObject.prevMaxSlopeAngle = stlObject.maxSlopeAngle;
 
                 for(let i = 0; i < stlObject.children.length; i++){
-                    let triangleRegion = new TriangleRegion(stlObject, stlObject.children[i].triangles, i);
-                    compute.rotateSTL(triangleRegion.triangles, triangleRegion.triangles, state.buildPlate.xAngle, state.buildPlate.yAngle, state.buildPlate.zAngle);
-                    stlObject.children[i] = triangleRegion;
+                    compute.translateStl(stlObject.children[i].origTriangles, stlObject.children[i].triangles, stlObject.xShift, stlObject.yShift, stlObject.zShift + stlObject.nonPlanarZOffset);
+                    compute.rotateSTL(stlObject.children[i].triangles, stlObject.children[i].triangles, state.buildPlate.xAngle, state.buildPlate.yAngle, state.buildPlate.zAngle);
                 }
-                compute.rotateSTL(stlObject.planarScaffold.triangles, stlObject.planarScaffold.triangles, state.buildPlate.xAngle, state.buildPlate.yAngle, state.buildPlate.zAngle);
-
+                compute.rotateSTL(stlObject.triangles, stlObject.triangles, state.buildPlate.xAngle, state.buildPlate.yAngle, state.buildPlate.zAngle);
                 if(stlObject.id == state.selectedId){
-                    compute.drawTrianglesToCanvas(stlObject.planarScaffold.triangles, "white");
+                    compute.drawTrianglesToCanvas(stlObject.triangles, "white");
                     for(let i = 0; i < stlObject.children.length; i++){
                         compute.drawTrianglesToCanvasFilled(stlObject.children[i].triangles, "#00ff00", "black");
                     }
-
-                } else {
-                    this.drawTrianglesToCanvas(stlObject.planarScaffold.triangles, "blue");
+                }
+                if(stlObject.id == state.nodes.get(state.selectedId).parentId){
+                    compute.drawTrianglesToCanvas(stlObject.triangles, "white");
+                    for(let i = 0; i < stlObject.children.length; i++){
+                        if(stlObject.children[i].id == state.selectedId){
+                            compute.drawTrianglesToCanvasFilled(stlObject.children[i].triangles, "#00ff00", "black");
+                        } else {
+                            compute.drawTrianglesToCanvasFilled(stlObject.children[i].triangles, "blue", "black");
+                        }
+                    }
+                }
+                if(stlObject.id != state.selectedId && stlObject.id != state.nodes.get(state.selectedId).parentId){
+                    this.drawTrianglesToCanvas(stlObject.triangles, "blue");
                     for(let i = 0; i < stlObject.children.length; i++){
                         compute.drawTrianglesToCanvasFilled(stlObject.children[i].triangles, "yellow", "black");
                     }
-
                 }
+            
                 }
+                
             })
 
 
-            if(false && stlObject && stlObject.planarScaffold && stlObject.planarScaffold.triangles){
+            if(false && stlObject && stlObject && stlObject.triangles){
 //                let maxSlopeAngle = Math.sin(Math.abs(document.getElementById("maxSlopeAngleId").value - 90) * Math.PI / 180);
 //                let nonPlanarThickness = parseFloat(document.getElementById("nonPlanarThickness").value);
  
-                let bb = compute.findBoundingBox(stlObject.planarScaffold.origTriangles);
+                let bb = compute.findBoundingBox(stlObject.origTriangles);
                 bb = bb[bb.length-1];
                 let center = [((bb.xMax-bb.xMin)/2) + bb.xMin, ((bb.yMax - bb.yMin) /2) + bb.yMin, (bb.zMax - bb.zMin)/2 + bb.zMin];
-                compute.translateStl(stlObject.planarScaffold.origTriangles, stlObject.planarScaffold.triangles, center[0]*-1, center[1] * -1, center[2] * -1);
-                compute.rotateSTL(stlObject.planarScaffold.origTriangles, stlObject.planarScaffold.triangles, stlObject.planarScaffold.xAngle, stlObject.planarScaffold.yAngle, stlObject.planarScaffold.zAngle);
-//                rotateSTL(stlObject.nonPlanarTopSurface.origTriangles, stlObject.nonPlanarTopSurface.triangles, stlObject.planarScaffold.xAngle, stlObject.planarScaffold.yAngle, stlObject.planarScaffold.zAngle);
+                compute.translateStl(stlObject.origTriangles, stlObject.triangles, center[0]*-1, center[1] * -1, center[2] * -1);
+                compute.rotateSTL(stlObject.origTriangles, stlObject.triangles, stlObject.xAngle, stlObject.yAngle, stlObject.zAngle);
+//                rotateSTL(stlObject.nonPlanarTopSurface.origTriangles, stlObject.nonPlanarTopSurface.triangles, stlObject.xAngle, stlObject.yAngle, stlObject.zAngle);
                 if(document.getElementById("zMinInputId").checked){
-                    let Zmin = compute.findZmin(stlObject.planarScaffold.triangles);
-                    compute.translateStl(stlObject.planarScaffold.origTriangles, stlObject.planarScaffold.triangles, center[0]+stlObject.planarScaffold.xShift, center[1] + stlObject.planarScaffold.yShift, center[2] + Zmin  -1);
+                    let zMin = compute.findzMin(stlObject.triangles);
+                    compute.translateStl(stlObject.origTriangles, stlObject.triangles, center[0]+stlObject.xShift, center[1] + stlObject.yShift, center[2] + zMin  -1);
                     //
                 } else {
-                    compute.translateStl(stlObject.planarScaffold.origTriangles, stlObject.planarScaffold.triangles, center[0]+stlObject.planarScaffold.xShift, center[1] + stlObject.planarScaffold.yShift, center[2]+stlObject.planarScaffold.zShift);
+                    compute.translateStl(stlObject.origTriangles, stlObject.triangles, center[0]+stlObject.xShift, center[1] + stlObject.yShift, center[2]+stlObject.zShift);
                 }
                 
-//                translateStl(stlObject.planarScaffold.triangles, stlObject.planarScaffold.triangles, stlObject.planarScaffold.xShift + centerXShift, stlObject.planarScaffold.yShift + centerYShift, stlObject.planarScaffold.zShift + stlObject.planarScaffold.zMin);
-//                translateStl(stlObject.nonPlanarTopSurface.triangles, stlObject.nonPlanarTopSurface.triangles, stlObject.nonPlanarTopSurface.xShift + stlObject.planarScaffold.xShift + centerXShift, stlObject.nonPlanarTopSurface.yShift + stlObject.planarScaffold.yShift + centerYShift, stlObject.nonPlanarTopSurface.zShift + stlObject.planarScaffold.zMin + stlObject.planarScaffold.zShift);
+//                translateStl(stlObject.triangles, stlObject.triangles, stlObject.xShift + centerXShift, stlObject.yShift + centerYShift, stlObject.zShift + stlObject.zMin);
+//                translateStl(stlObject.nonPlanarTopSurface.triangles, stlObject.nonPlanarTopSurface.triangles, stlObject.nonPlanarTopSurface.xShift + stlObject.xShift + centerXShift, stlObject.nonPlanarTopSurface.yShift + stlObject.yShift + centerYShift, stlObject.nonPlanarTopSurface.zShift + stlObject.zMin + stlObject.zShift);
 
 
-//                reNormalizeTriangles(stlObject.planarScaffold.triangles);
+//                reNormalizeTriangles(stlObject.triangles);
 //                reNormalizeTriangles(stlObject.nonPlanarTopSurface.triangles);
 //
-//                let lexiSortedPoints = lexiSortPointsFromTriangles(stlObject.planarScaffold.triangles);
-//                let lexiSortedTrianglesZdecrease = decreaseZInTopFacingTrianglesFromLexiPoints(stlObject.planarScaffold.triangles, lexiSortedPoints, nonPlanarThickness, maxSlopeAngle);
+//                let lexiSortedPoints = lexiSortPointsFromTriangles(stlObject.triangles);
+//                let lexiSortedTrianglesZdecrease = decreaseZInTopFacingTrianglesFromLexiPoints(stlObject.triangles, lexiSortedPoints, nonPlanarThickness, maxSlopeAngle);
 //
 //                let tft = findTopFacingTriangles(stlObject.nonPlanarTopSurface.triangles, maxSlopeAngle);
 //                let extractedConnectedComponents = extractConnectedComponentsFromTriangles(tft);
@@ -1336,9 +1389,10 @@ const compute = {
             let xRotationInput = document.getElementById("xRotationInputId");
             let yRotationInput = document.getElementById("yRotationInputId");
             let zRotationInput = document.getElementById("zRotationInputId");
-            stlObject.planarScaffold.xAngle = parseFloat(xRotationInput.value);
-            stlObject.planarScaffold.yAngle = parseFloat(yRotationInput.value);
-            stlObject.planarScaffold.zAngle = parseFloat(zRotationInput.value);            
+            stlObject.xAngle = parseFloat(xRotationInput.value);
+            stlObject.yAngle = parseFloat(yRotationInput.value);
+            stlObject.zAngle = parseFloat(zRotationInput.value);
+            compute.createStlSurfaces();
             compute.rotateView(state.buildPlate.xAngle, state.buildPlate.yAngle, state.buildPlate.zAngle);
         },
 
@@ -1352,7 +1406,7 @@ const compute = {
                 stls[i].boundingBox = boundingBox[boundingBox.length -1];
             }
 
-            let rotatedStl = rotateSTL(stlObject.planarScaffold.origTriangles, stlObject.planarScaffold.triangles, 0, 0, 0);
+            let rotatedStl = rotateSTL(stlObject.origTriangles, stlObject.triangles, 0, 0, 0);
 
             let lexiSortedPoints = lexiSortPointsFromTriangles(rotatedStl);
             let lexiSortedTrianglesZdecrease = decreaseZInTopFacingTrianglesFromLexiPoints(rotatedStl, lexiSortedPoints, 1);
