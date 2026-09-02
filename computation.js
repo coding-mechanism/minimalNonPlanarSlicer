@@ -46,9 +46,6 @@ const compute = {
 
         fileInputChange(stl){
             const reader = new FileReader();
-            if(stl.type !== "model/stl"){
-                return false;
-            }
             reader.readAsArrayBuffer(stl);
             reader.onload = (() => {
             return function(e) {
